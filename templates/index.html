@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resume Optimizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Resume Optimizer</h1>
+        
+        <form id="optimizeForm">
+            <div class="form-group">
+                <label for="resume">Resume (Markdown):</label>
+                <textarea id="resume" rows="10"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="jobDescription">Job Description:</label>
+                <textarea id="jobDescription" rows="5"></textarea>
+            </div>
+            
+            <button type="submit">Optimize</button>
+        </form>
+        
+        <div id="results" class="hidden">
+            <h2>Keywords to Include:</h2>
+            <div id="keywords"></div>
+            
+            <h2>Optimized Resume:</h2>
+            <pre id="optimizedResume"></pre>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('optimizeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const response = await fetch('/optimize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    resume: document.getElementById('resume').value,
+                    job_description: document.getElementById('jobDescription').value
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                alert('Error: ' + data.error);
+                return;
+            }
+            
+            document.getElementById('keywords').textContent = data.keywords.join(', ');
+            document.getElementById('optimizedResume').textContent = data.optimized_resume;
+            document.getElementById('results').classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
